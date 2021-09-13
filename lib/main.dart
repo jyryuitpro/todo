@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo/data/todo.dart';
+import 'package:todo/data/utils.dart';
+import 'package:todo/todo_write_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -43,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
       memo: '앱개발 입문강의 듣기2',
       category: '공부',
       color: Colors.blue.value,
-      done: 0,
+      done: 1,
       date: 20210913,
     ),
   ];
@@ -77,12 +79,16 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             );
           } else if (index == 1) {
+            List<Todo> undone = todos.where((element) {
+              return element.done == 0;
+            }).toList();
+
             return Container(
               child: Column(
                 children: List.generate(
-                  todos.length,
+                  undone.length,
                   (index) {
-                    Todo t = todos[index];
+                    Todo t = undone[index];
                     return Container(
                       decoration: BoxDecoration(
                         color: Color(t.color),
@@ -135,10 +141,108 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             );
           } else if (index == 2) {
-          } else if (index == 3) {}
+            return Container(
+              margin: EdgeInsets.symmetric(
+                vertical: 12,
+                horizontal: 20,
+              ),
+              child: Text(
+                '완료된 하루',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          } else if (index == 3) {
+            List<Todo> done = todos.where((element) {
+              return element.done == 1;
+            }).toList();
+
+            return Container(
+              child: Column(
+                children: List.generate(
+                  done.length,
+                  (index) {
+                    Todo t = done[index];
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Color(t.color),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 12,
+                      ),
+                      margin: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 20,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                t.title,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                t.done == 0 ? '미완료' : '완료',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            height: 8,
+                          ),
+                          Text(
+                            t.memo,
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          }
           return Container();
         },
         itemCount: 4,
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+        onPressed: () async {
+          Todo todo = await Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => TodoWritePage(
+              todo: Todo(
+                title: '',
+                memo: '',
+                category: '',
+                color: 0,
+                done: 0,
+                date: Utils.getFormatTime(DateTime.now()),
+              ),
+            ),
+          ));
+          setState(() {
+            todos.add(todo);
+          });
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
